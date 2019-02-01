@@ -1,0 +1,8 @@
+package org.kie.api2;
+import org.kie.api2.model.*;
+
+rule FindMark @Unit(PersonUnit.class) when
+    $p: Person( name == "Mark" )
+then
+    Result.value = $p;
+end
