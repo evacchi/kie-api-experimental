@@ -65,6 +65,7 @@ import org.kie.api.runtime.rule.LiveQuery;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.ViewChangedEventListener;
 import org.kie.api.time.SessionClock;
+import org.kie.api2.api.Kie;
 import org.kie.api2.api.ProcessUnit;
 import org.kie.api2.api.ProcessUnitInstance;
 import org.kie.api2.api.Unit;
@@ -76,22 +77,22 @@ import org.kie.api2.api.Unit;
 public class ProcessUnitInstanceImpl<U extends ProcessUnit> implements ProcessUnitInstance<U> {
 
     private final U unit;
-    private final InternalKnowledgeBase kBase;
     private final InternalProcessRuntime processRuntime;
     private final Process process;
     private final ProcessUnitDummyWorkingMemory dummyWorkingMemory;
+    private final Kie.Runtime runtime;
     private WorkflowProcessInstanceImpl processInstance;
 
-    public ProcessUnitInstanceImpl(U unit, InternalKnowledgeBase kBase) {
+    public ProcessUnitInstanceImpl(U unit, Kie.Runtime runtime) {
+        this.runtime = runtime;
         // I know this isn't correct: for now we are recreating new factories and runtimes each time; this is only for this PoC
         // see the Unit design document for details of how this will be actually handled using managers
         ProcessRuntimeFactoryService svc = ProcessRuntimeFactory.getProcessRuntimeFactoryService();
         this.unit = unit;
-        this.kBase = kBase;
-        this.dummyWorkingMemory = new ProcessUnitDummyWorkingMemory(kBase);
+        this.dummyWorkingMemory = new ProcessUnitDummyWorkingMemory(runtime);
         this.processRuntime = svc.newProcessRuntime(dummyWorkingMemory);
         // by convention (for now) we assume process id == unit name
-        this.process = kBase.getProcess(id());
+        this.process = runtime.kieBase().getProcess(id());
         this.dummyWorkingMemory.setProcessRuntime(processRuntime);
 
         this.processInstance = null;
@@ -156,13 +157,13 @@ class ProcessUnitDummyWorkingMemory implements InternalWorkingMemory,
 
     private final TimerService timerService;
     private final EnvironmentImpl environment;
-    private final KieBase kieBase;
+    private final Kie.Runtime runtime;
     private InternalProcessRuntime processRuntime;
 
-    ProcessUnitDummyWorkingMemory(KieBase kieBase) {
+    ProcessUnitDummyWorkingMemory(Kie.Runtime runtime) {
+        this.runtime = runtime;
         environment = new EnvironmentImpl();
         timerService = new JDKTimerService();
-        this.kieBase = kieBase;
 //        // must use (InternalWorkingMemory) and not (InternalKnowledgeRuntime) otherwise it breaks with:
 //        // java.lang.ClassCastException: org.drools.core.common.ProjectClassLoader cannot be cast to org.kie.internal.utils.CompositeClassLoader
     }
@@ -171,9 +172,13 @@ class ProcessUnitDummyWorkingMemory implements InternalWorkingMemory,
         this.processRuntime = processRuntime;
     }
 
+    public Kie.Runtime runtime() {
+        return runtime;
+    }
+
     @Override
     public InternalAgenda getAgenda() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -448,7 +453,7 @@ class ProcessUnitDummyWorkingMemory implements InternalWorkingMemory,
 
     @Override
     public KieBase getKieBase() {
-        return kieBase;
+        return runtime.kieBase();
     }
 
     @Override

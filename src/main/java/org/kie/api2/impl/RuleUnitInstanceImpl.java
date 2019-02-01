@@ -62,6 +62,7 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.time.SessionClock;
 import org.kie.api2.api.DataSource;
+import org.kie.api2.api.Kie;
 import org.kie.api2.api.RuleUnit;
 import org.kie.api2.api.RuleUnitInstance;
 
@@ -76,13 +77,14 @@ public class RuleUnitInstanceImpl<T extends RuleUnit> implements RuleUnitInstanc
     private final RuleUnitDummyWorkingMemory dummyWorkingMemory;
     private final ConcurrentNodeMemories nodeMemories;
     private T unit;
-    private InternalKnowledgeBase kBase;
+    private final Kie.Runtime runtime;
     private InternalAgenda agenda;
     private final EntryPoints entryPoints;
 
-    public RuleUnitInstanceImpl(T unit, InternalKnowledgeBase kBase) {
+    public RuleUnitInstanceImpl(T unit, Kie.Runtime runtime) {
+        InternalKnowledgeBase kBase = runtime.kieBase();
         this.unit = unit;
-        this.kBase = kBase;
+        this.runtime = runtime;
         this.dummyWorkingMemory = new RuleUnitDummyWorkingMemory(this);
         this.agenda = new PatchedDefaultAgenda(kBase);
         this.nodeMemories = new ConcurrentNodeMemories(kBase, DEFAULT_RULE_UNIT);
@@ -121,7 +123,7 @@ public class RuleUnitInstanceImpl<T extends RuleUnit> implements RuleUnitInstanc
     }
 
     InternalKnowledgeBase getInternalKnowledgeBase() {
-        return kBase;
+        return runtime.kieBase();
     }
 
     EntryPoints getEntryPoints() {

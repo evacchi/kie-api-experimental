@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class ProcessUnitTest {
 
     @Test
-    public void startTest() {
+    public void simpleProcess() {
         // example usage of a ProcessUnit
         // notice how the API is type-safe in the type of the Unit, returning
         // a ProcessUnitInstance because MyProcessUnit implements ProcessUnit
@@ -22,6 +22,17 @@ public class ProcessUnitTest {
         // after running, the field equals to Hello World
         assertEquals("Hello World", unit.result);
     }
+
+    @Test
+    public void ruleUnitProcess() {
+        BusinessRuleProcessUnit u = new BusinessRuleProcessUnit();
+        ProcessUnitInstance<BusinessRuleProcessUnit> p = Kie.runtime().of(u);
+        p.run();
+    }
+}
+
+class BusinessRuleProcessUnit implements ProcessUnit {
+
 }
 
 class MyProcessUnit implements ProcessUnit {
