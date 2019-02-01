@@ -6,6 +6,7 @@ import org.kie.api2.api.DataSource;
 import org.kie.api2.api.Kie;
 import org.kie.api2.api.RuleUnitInstance;
 import org.kie.api2.impl.DataSourceImpl;
+import org.kie.api2.impl.KieRuntimeImpl;
 import org.kie.api2.model.Person;
 import org.kie.api2.model.Result;
 
@@ -25,11 +26,11 @@ public class RuleUnitTest {
         FactHandle edsonFH = ps.add(edson);
         FactHandle marioFH = ps.add(mario);
 
-        Kie.Runtime.Factory runtime = Kie.runtime();
+        Kie.Runtime runtime = new KieRuntimeImpl();
         // create a RuleUnit instance.
         // Notice that the API is type safe, it the sub-type of PersonUnit (which implements RuleUnit)
         // in fact, it returns a RuleUnitInstance!
-        RuleUnitInstance<PersonUnit> rui = runtime.of(new PersonUnit(ps));
+        RuleUnitInstance<PersonUnit> rui = runtime.factory().of(new PersonUnit(ps));
         // start the unit
         rui.run();
 

@@ -1,9 +1,9 @@
 package org.kie.api2;
 
 import org.junit.Test;
-import org.kie.api2.api.Kie;
 import org.kie.api2.api.ProcessUnit;
 import org.kie.api2.api.ProcessUnitInstance;
+import org.kie.api2.impl.KieRuntimeImpl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,7 +17,7 @@ public class ProcessUnitTest {
         MyProcessUnit unit = new MyProcessUnit();
 
         // result field in unit defaults to null
-        ProcessUnitInstance<MyProcessUnit> instance = Kie.runtime().of(unit);
+        ProcessUnitInstance<MyProcessUnit> instance = new KieRuntimeImpl().factory().of(unit);
         instance.run();
         // after running, the field equals to Hello World
         assertEquals("Hello World", unit.result);
@@ -26,7 +26,7 @@ public class ProcessUnitTest {
     @Test
     public void ruleUnitProcess() {
         BusinessRuleProcessUnit u = new BusinessRuleProcessUnit();
-        ProcessUnitInstance<BusinessRuleProcessUnit> p = Kie.runtime().of(u);
+        ProcessUnitInstance<BusinessRuleProcessUnit> p = new KieRuntimeImpl().factory().of(u);
         p.run();
     }
 }

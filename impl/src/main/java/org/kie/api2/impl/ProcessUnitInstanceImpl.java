@@ -152,7 +152,8 @@ public class ProcessUnitInstanceImpl<U extends ProcessUnit> implements ProcessUn
  * A severely limited implementation of the WorkingMemory interface.
  * It only exists for legacy reasons.
  */
-class ProcessUnitDummyWorkingMemory implements InternalWorkingMemory,
+class ProcessUnitDummyWorkingMemory implements Kie.Runtime.Provider,
+                                               InternalWorkingMemory,
                                                InternalKnowledgeRuntime {
 
     private final TimerService timerService;

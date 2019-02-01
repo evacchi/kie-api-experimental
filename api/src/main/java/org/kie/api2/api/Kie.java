@@ -1,19 +1,14 @@
 package org.kie.api2.api;
 
 import org.drools.core.impl.InternalKnowledgeBase;
-import org.kie.api.KieServices;
-import org.kie.api2.impl.KieRuntimeFactoryImpl;
-import org.kie.api2.impl.KieRuntimeImpl;
 
 public interface Kie {
-
-    static Runtime.Factory runtime() {
-        return new KieRuntimeFactoryImpl(new KieRuntimeImpl());
-    }
 
     interface Runtime {
 
         InternalKnowledgeBase kieBase();
+
+        Factory factory();
 
         interface Factory {
 
@@ -30,6 +25,11 @@ public interface Kie {
             <U extends ProcessUnit> ProcessUnitInstance<U> of(U unit);
 
             <U extends BayesUnit> BayesUnitInstance<U> of(U Unit);
+        }
+
+        interface Provider {
+
+            Kie.Runtime runtime();
         }
     }
 }

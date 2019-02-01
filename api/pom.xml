@@ -3,28 +3,21 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>drools</artifactId>
-    <groupId>org.drools</groupId>
+    <artifactId>kie-api2</artifactId>
+    <groupId>org.kie</groupId>
     <version>7.18.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.kie</groupId>
-  <artifactId>kie-api2</artifactId>
+  <artifactId>kie-api2-api</artifactId>
 
   <dependencies>
     <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-model-compiler</artifactId>
-      <version>7.18.0-SNAPSHOT</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
     </dependency>
-
   </dependencies>
-
-  <modules>
-    <module>api</module>
-    <module>impl</module>
-
-  </modules>
-
 </project>
