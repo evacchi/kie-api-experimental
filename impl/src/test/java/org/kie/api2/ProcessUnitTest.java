@@ -1,5 +1,8 @@
 package org.kie.api2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.core.RuleFlowProcessFactory;
 import org.junit.Ignore;
@@ -14,6 +17,8 @@ import org.kie.api2.impl.DataSourceImpl;
 import org.kie.api2.impl.KieRuntimeImpl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ProcessUnitTest {
 
@@ -35,15 +40,17 @@ public class ProcessUnitTest {
     public void ruleUnitProcess() {
         DataSource<String> strings = new DataSourceImpl<>();
         strings.add("abc");
-        BusinessRuleProcessUnit u = new BusinessRuleProcessUnit(strings);
+        ArrayList<String> list = new ArrayList<>();
+        BusinessRuleProcessUnit u = new BusinessRuleProcessUnit(strings, list);
 
         Kie.Runtime rt = KieRuntime.create();
         Kie.Runtime.Factory f = rt.factory();
-//        RuleUnitInstance<BusinessRuleUnit> r = f.of(new BusinessRuleUnit(strings));
-//        r.run();
 
         ProcessUnitInstance<BusinessRuleProcessUnit> p = f.of(u);
         p.run();
+
+        assertFalse(list.isEmpty());
+        assertTrue(list.contains("GOT: abc"));
     }
 
     @Test @Ignore("action is null")
@@ -76,20 +83,3 @@ public class ProcessUnitTest {
     }
 }
 
-class BusinessRuleProcessUnit implements ProcessUnit {
-
-    private DataSource<String> strings;
-
-    BusinessRuleProcessUnit(DataSource<String> strings) {
-        this.strings = strings;
-    }
-
-    public DataSource<String> list() {
-        return strings;
-    }
-}
-
-class MyProcessUnit implements ProcessUnit {
-
-    String result = null;
-}

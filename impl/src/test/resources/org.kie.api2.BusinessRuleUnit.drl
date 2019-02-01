@@ -15,9 +15,11 @@
 
 package org.kie.api2;
 
+global java.util.List<String> list;
+
 rule MyRule @Unit(BusinessRuleUnit.class)
   when
-    String ()
+    $match: String ()
   then
-    System.out.println("EXECUTED");
+    list.add("GOT: "+$match);
 end

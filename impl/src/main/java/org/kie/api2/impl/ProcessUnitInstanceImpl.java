@@ -108,6 +108,7 @@ public class ProcessUnitInstanceImpl<U extends ProcessUnit> implements ProcessUn
         toMap(unit, params);
         processInstance = (WorkflowProcessInstanceImpl) processRuntime.createProcessInstance(
                 unit.getClass().getCanonicalName(), params);
+        processInstance.getMetaData().put("__PROCESS_UNIT_INSTANCE__", this);
         processRuntime.startProcessInstance(processInstance.getId());
         // reconcile unit with internal variable representation
         fromMap(processInstance.getVariables(), unit);

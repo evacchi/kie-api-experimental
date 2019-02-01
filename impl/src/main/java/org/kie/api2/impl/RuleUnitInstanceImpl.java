@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 
@@ -109,12 +110,13 @@ public class RuleUnitInstanceImpl<T extends RuleUnit> implements RuleUnitInstanc
     private void bindDataSources() {
         try {
             for (Field field : unit.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                Object v = field.get(unit);
                 if (field.getType().isAssignableFrom(DataSource.class)) {
-                    field.setAccessible(true);
-                    DataSourceImpl<?> v = (DataSourceImpl<?>) field.get(unit);
-                    v.bind(this);
+                    DataSourceImpl<?> ds = (DataSourceImpl<?>) v;
+                    ds.bind(this);
                 } else {
-                    throw new UnsupportedOperationException();
+                    field.set(unit, v);
                 }
             }
         } catch (IllegalAccessException e) {
@@ -147,6 +149,7 @@ public class RuleUnitInstanceImpl<T extends RuleUnit> implements RuleUnitInstanc
         return unit;
     }
 }
+
 /**
  * Implements a collection of EntryPoints
  */
@@ -192,7 +195,6 @@ class EntryPoints {
 /**
  * A severely limited implementation of the WorkingMemory interface
  * which delegates to the RuleUnitInstance. It only exists for legacy reasons.
- *
  */
 class RuleUnitDummyWorkingMemory implements InternalWorkingMemoryActions {
 
@@ -222,13 +224,44 @@ class RuleUnitDummyWorkingMemory implements InternalWorkingMemoryActions {
 
     @Override
     public void setGlobal(String identifier, Object value) {
-        throw new UnsupportedOperationException();
+        reflectiveAccess(identifier).ifPresent(f -> write(f, value));
     }
 
     @Override
     public Object getGlobal(String identifier) {
-        throw new UnsupportedOperationException();
+        return reflectiveAccess(identifier).map(this::read).orElse(null);
     }
+
+    private Optional<Field> reflectiveAccess(String identifier) {
+        try {
+            RuleUnit unit = delegate.unit();
+            Field f = unit.getClass().getDeclaredField(identifier);
+            f.setAccessible(true);
+            return Optional.of(f);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+
+    private Object read(Field f) {
+        try {
+            return f.get(delegate.unit());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void write(Field f, Object o) {
+        try {
+            f.set(delegate.unit(), o);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public Environment getEnvironment() {
@@ -262,7 +295,11 @@ class RuleUnitDummyWorkingMemory implements InternalWorkingMemoryActions {
 
     @Override
     public FactHandle insert(Object object, boolean dynamic, RuleImpl rule, TerminalNode terminalNode) {
-        throw new UnsupportedOperationException();
+        NamedEntryPoint ep = (NamedEntryPoint) delegate.getEntryPoints().defaultEntryPoint();
+        return ep.insert(object,
+                  dynamic,
+                  rule,
+                  terminalNode);
     }
 
     @Override
