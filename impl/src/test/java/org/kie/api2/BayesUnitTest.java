@@ -4,9 +4,7 @@ import org.drools.beliefs.bayes.VarName;
 import org.junit.Test;
 import org.kie.api2.api.BayesUnit;
 import org.kie.api2.api.BayesUnitInstance;
-import org.kie.api2.api.Kie;
-import org.kie.api2.impl.BayesUnitInstanceImpl;
-import org.kie.api2.impl.KieRuntimeImpl;
+import org.kie.api2.glue.KieRuntime;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,7 +13,7 @@ public class BayesUnitTest {
     @Test
     public void testBayesRuntimeManager() throws Exception {
         Garden garden = new Garden();
-        BayesUnitInstance<Garden> instance = new KieRuntimeImpl().factory().of(garden);
+        BayesUnitInstance<Garden> instance = KieRuntime.create().factory().of(garden);
         instance.run();
         assertTrue(garden.isWetGrass());
     }

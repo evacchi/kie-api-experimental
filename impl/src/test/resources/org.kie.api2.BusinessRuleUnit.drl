@@ -15,11 +15,9 @@
 
 package org.kie.api2;
 
-global java.util.List list;
-
 rule MyRule @Unit(BusinessRuleUnit.class)
-  ruleflow-group "org.kie.api2.BusinessRuleUnit"
   when
+    String ()
   then
-    list.add("Executed");
+    System.out.println("EXECUTED");
 end

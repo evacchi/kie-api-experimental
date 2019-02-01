@@ -47,13 +47,10 @@ public class DataSourceImpl<T> implements DataSource<T> {
 
     private ObjectStore objectStore = new ClassAwareObjectStore(RuleBaseConfiguration.AssertBehaviour.IDENTITY, null);
 
-    private List<T> inserted;
+    private List<T> inserted = new ArrayList<>();
 
     @Override
     public FactHandle add(T object) {
-        if (inserted == null) {
-            inserted = new ArrayList<>();
-        }
         inserted.add(object);
         return null;
     }

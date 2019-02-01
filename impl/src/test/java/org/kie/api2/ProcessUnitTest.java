@@ -1,8 +1,16 @@
 package org.kie.api2;
 
+import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.ruleflow.core.RuleFlowProcessFactory;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api2.api.DataSource;
+import org.kie.api2.api.Kie;
 import org.kie.api2.api.ProcessUnit;
 import org.kie.api2.api.ProcessUnitInstance;
+import org.kie.api2.api.RuleUnitInstance;
+import org.kie.api2.glue.KieRuntime;
+import org.kie.api2.impl.DataSourceImpl;
 import org.kie.api2.impl.KieRuntimeImpl;
 
 import static org.junit.Assert.assertEquals;
@@ -25,16 +33,63 @@ public class ProcessUnitTest {
 
     @Test
     public void ruleUnitProcess() {
-        BusinessRuleProcessUnit u = new BusinessRuleProcessUnit();
-        ProcessUnitInstance<BusinessRuleProcessUnit> p = new KieRuntimeImpl().factory().of(u);
+        DataSource<String> strings = new DataSourceImpl<>();
+        strings.add("abc");
+        BusinessRuleProcessUnit u = new BusinessRuleProcessUnit(strings);
+
+        Kie.Runtime rt = KieRuntime.create();
+        Kie.Runtime.Factory f = rt.factory();
+//        RuleUnitInstance<BusinessRuleUnit> r = f.of(new BusinessRuleUnit(strings));
+//        r.run();
+
+        ProcessUnitInstance<BusinessRuleProcessUnit> p = f.of(u);
         p.run();
+    }
+
+    @Test @Ignore("action is null")
+    public void fluentProcess() {
+        RuleFlowProcessFactory factory =
+                RuleFlowProcessFactory.createProcess("org.kie.api2.MyProcessUnit");
+        factory
+                // Header
+                .name("HelloWorldProcess")
+                .version("1.0")
+                .packageName("org.jbpm")
+                // Nodes
+                .startNode(1).name("Start").done()
+                .actionNode(2).name("Action")
+                .action("java", "System.out.println(\"Hello World1\");").done()
+                .endNode(3).name("End").done()
+                // Connections
+                .connection(1, 2)
+                .connection(2, 3);
+        RuleFlowProcess process = factory.validate().getProcess();
+
+        MyProcessUnit unit = new MyProcessUnit();
+
+        // result field in unit defaults to null
+        Kie.Runtime runtime = KieRuntime.create();
+        runtime.kieBase().addProcess(process);
+        ProcessUnitInstance<MyProcessUnit> instance = runtime.factory().of(unit);
+        instance.run();
+
     }
 }
 
 class BusinessRuleProcessUnit implements ProcessUnit {
 
+    private DataSource<String> strings;
+
+    BusinessRuleProcessUnit(DataSource<String> strings) {
+        this.strings = strings;
+    }
+
+    public DataSource<String> list() {
+        return strings;
+    }
 }
 
 class MyProcessUnit implements ProcessUnit {
+
     String result = null;
 }
